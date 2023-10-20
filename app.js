@@ -6,6 +6,9 @@ const Service = require("./model/Service");
 const CreateHomeWork = require("./model/CreateHomeWork");
 const Orders = require("./model/Orders");
 const Affliate = require("./model/Affliate");
+const Flavours = require("./model/Flavours");
+const Quantity = require("./model/Quantity");
+const Prices = require("./model/Prices");
 
 const cors = require("cors");
 const fileUpload = require("express-fileupload");
@@ -147,8 +150,7 @@ app.post("/login", async (req, res) => {
 
 app.get("/getorders", async (req, res) => {
   try {
-    const homeWork = await Orders.find({});
-    console.log(homeWork);
+    const homeWork = await Orders.find({}).sort({ created_at: -1 });
     res.status(200).json(homeWork);
   } catch (err) {
     console.log(err);
@@ -168,19 +170,15 @@ app.post("/raiseanorder", async (req, res) => {
       comments,
       address,
     } = req.body;
-    console.log("files", req.files);
 
     let url = "";
     if (req.files && req.files.image) {
       let file = req.files.image;
-      console.log("FILES 160", file, req.body);
       result = await cloudinary.uploader.upload(file.tempFilePath, {
         folder: "users",
       });
-      console.log(result);
       url = result.secure_url;
     }
-    console.log("URL", url);
     const raiseAnOrder = await Orders.create({
       name,
       mobile,
@@ -195,6 +193,116 @@ app.post("/raiseanorder", async (req, res) => {
     });
 
     res.status(200).send(raiseAnOrder);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({ error: "Error While Saving" });
+  }
+});
+
+app.post("/addflavours", async (req, res) => {
+  try {
+    const { flavourName } = req.body;
+    const flavours = await Flavours.create({
+      flavourId: uuid(),
+      flavourName,
+    });
+    res.status(200).send(flavours);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+app.get("/getallflavours", async (req, res) => {
+  try {
+    const allFlavours = await Flavours.find({});
+    res.status(200).json(allFlavours);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+app.post("/addquantity", async (req, res) => {
+  try {
+    const { quantityName } = req.body;
+    const quantityData = await Quantity.create({
+      quantityId: uuid(),
+      quantityName,
+    });
+    res.status(200).send(quantityData);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+app.get("/getallquanties", async (req, res) => {
+  try {
+    const allQuantites = await Quantity.find({});
+    res.status(200).json(allQuantites);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+app.post("/addprices", async (req, res) => {
+  try {
+    const { quantity, flavourName, price } = req.body;
+    const pricesData = await Prices.create({
+      priceId: uuid(),
+      quantity,
+      flavourName,
+      price,
+    });
+    res.status(200).send(pricesData);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+app.put("/editprices", async (req, res) => {
+  try {
+    const { quantity, flavourName, price, priceId } = req.body;
+    const pricesData = await Prices.findOneAndUpdate(
+      { priceId },
+      { quantity, flavourName, price },
+      { new: true }
+    );
+    if (pricesData) {
+      res.status(200).send(pricesData);
+    } else {
+      console.log("User not found");
+    }
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+app.get("/getallprices", async (req, res) => {
+  try {
+    const allPrices = await Prices.find({});
+    res.status(200).json(allPrices);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+app.post("/getpricebyquantity", async (req, res) => {
+  try {
+    const { quantity, flavourName } = req.body;
+    const allPrices = await Prices.find({ quantity, flavourName });
+    res.status(200).json(allPrices);
+  } catch (err) {
+    res.status(500).json({ errorMessage: "No Data found" });
+  }
+});
+
+app.delete("/deletePrice/:id", async (req, res) => {
+  try {
+    const priceId = req.params.id;
+    const deletePrice = await Prices.findOneAndDelete({ priceId });
+    if (deletePrice) {
+      res.status(200).send(deletePrice);
+    } else {
+    }
   } catch (err) {
     console.log(err);
   }

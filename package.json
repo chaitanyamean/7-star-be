@@ -20,7 +20,8 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^6.1.9",
     "socket.io": "^4.4.1",
-    "uuid4": "^2.0.2"
+    "uuid4": "^2.0.2",
+    "wbm": "^1.1.16"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"
