@@ -9,7 +9,11 @@ const Affliate = require("./model/Affliate");
 const Flavours = require("./model/Flavours");
 const Quantity = require("./model/Quantity");
 const Prices = require("./model/Prices");
+const nodemailer = require("nodemailer");
+const Mailgen = require("mailgen");
 
+// const appRoute = require("./routes/appRoutes.js");
+// app.use("/api", appRoute);
 const cors = require("cors");
 const fileUpload = require("express-fileupload");
 const app = express();
@@ -30,7 +34,7 @@ const uuid = require("uuid4");
 const ClassStandard = require("./model/ClassStandard");
 const Challenges = require("./model/Challenges");
 const cloudinary = require("cloudinary").v2;
-
+const { generateEmail } = require("./generateEmail.js");
 cloudinary.config({
   cloud_name: "dzgqn90ha",
   api_key: "671699842544666",
@@ -169,6 +173,7 @@ app.post("/raiseanorder", async (req, res) => {
       date,
       comments,
       address,
+      price,
     } = req.body;
 
     let url = "";
@@ -189,10 +194,12 @@ app.post("/raiseanorder", async (req, res) => {
       date,
       comments,
       address,
+      price,
       orderId: uuid(),
     });
-
+    console.log("raise", raiseAnOrder);
     res.status(200).send(raiseAnOrder);
+    generateEmail(raiseAnOrder);
   } catch (err) {
     console.log(err);
     res.status(500).send({ error: "Error While Saving" });
@@ -306,6 +313,66 @@ app.delete("/deletePrice/:id", async (req, res) => {
   } catch (err) {
     console.log(err);
   }
+});
+
+app.post("/sendemail", (req, res) => {
+  console.log(req, res);
+  const { userEmail } = req.body;
+
+  let config = {
+    service: "gmail",
+    auth: {
+      user: "chaitanyaang4@gmail.com",
+      pass: "dtlspkbcrioxtxhw",
+    },
+  };
+
+  let transporter = nodemailer.createTransport(config);
+
+  let MailGenerator = new Mailgen({
+    theme: "default",
+    product: {
+      name: "7 Star Bakers",
+      link: "https://7-stars-bakery.netlify.app/admin/dashboard",
+    },
+  });
+
+  let response = {
+    body: {
+      name: "Daily Tuition",
+      intro: "Your bill has arrived!",
+      table: {
+        data: [
+          {
+            item: "Nodemailer Stack Book",
+            description: "A Backend application",
+            price: "$10.99",
+          },
+        ],
+      },
+      outro: "Looking forward to do more business",
+    },
+  };
+
+  let mail = MailGenerator.generate(response);
+
+  let message = {
+    from: "chaitanyaang4@gmail.com",
+    to: userEmail,
+    subject: "New Order",
+    html: mail,
+  };
+
+  transporter
+    .sendMail(message)
+    .then(() => {
+      return res.status(201).json({
+        msg: "you should receive an email",
+      });
+    })
+    .catch((error) => {
+      return res.status(500).json({ error });
+    });
 });
 
 module.exports = app;

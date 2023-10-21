@@ -33,6 +33,9 @@ const userSchema = new mongoose.Schema(
     orderId: {
       type: String,
     },
+    price: {
+      type: String,
+    },
   },
   { timestamps: { createdAt: "created_at" } }
 );
