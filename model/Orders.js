@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const userSchema = new mongoose.Schema(
+const ordersSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -40,4 +40,4 @@ const userSchema = new mongoose.Schema(
   { timestamps: { createdAt: "created_at" } }
 );
 
-module.exports = mongoose.model("orders", userSchema);
+module.exports = mongoose.model("orders", ordersSchema);

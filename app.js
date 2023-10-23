@@ -11,7 +11,7 @@ const Quantity = require("./model/Quantity");
 const Prices = require("./model/Prices");
 const nodemailer = require("nodemailer");
 const Mailgen = require("mailgen");
-
+const appRoute = require("./routes/appRoutes");
 // const appRoute = require("./routes/appRoutes.js");
 // app.use("/api", appRoute);
 const cors = require("cors");
@@ -35,6 +35,8 @@ const ClassStandard = require("./model/ClassStandard");
 const Challenges = require("./model/Challenges");
 const cloudinary = require("cloudinary").v2;
 const { generateEmail } = require("./generateEmail.js");
+app.use("/api", appRoute);
+
 cloudinary.config({
   cloud_name: "dzgqn90ha",
   api_key: "671699842544666",

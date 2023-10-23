@@ -1,9 +1,10 @@
 const router = require("express").Router();
 
-const { signup, getbill } = require("../controller/appController.js");
+const { loginMethod } = require("../controller/appController.js");
 
 /** HTTP Reqeust */
-router.post("/user/signup", signup);
-router.post("/product/getbill", getbill);
+// router.post("/user/signup", signup);
+// router.post("/product/getbill", getbill);
+router.post("/login", loginMethod);
 
 module.exports = router;
