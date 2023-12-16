@@ -36,6 +36,9 @@ const ordersSchema = new mongoose.Schema(
     price: {
       type: String,
     },
+    status: {
+      type: String,
+    },
   },
   { timestamps: { createdAt: "created_at" } }
 );

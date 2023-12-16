@@ -50,7 +50,6 @@ app.get("/", (req, res) => {
 });
 
 app.post("/register", async (req, res) => {
-  console.log(req.body);
   try {
     const { name, email, password, usertype } = req.body;
     if (!(name && email && password)) {
@@ -113,21 +112,18 @@ app.post("/deleteService", auth, async (req, res) => {
   const { serviceId } = req.body;
 
   const getserviceId = await Service.deleteOne({ serviceId });
-  console.log("GETSERVICE", getserviceId);
   res.status(200).json(getserviceId);
 });
 
 app.post("/login", async (req, res) => {
   try {
     const { employeeId } = req.body;
-    console.log(req.body);
 
     if (!employeeId) {
       res.status(400).send("Fields are missing");
     }
 
     const user = await User.findOne({ employeeId });
-    console.log(user);
     if (!user) {
       res.status(400).send("U r not registered");
     }
@@ -186,6 +182,7 @@ app.post("/raiseanorder", async (req, res) => {
       });
       url = result.secure_url;
     }
+
     const raiseAnOrder = await Orders.create({
       name,
       mobile,
@@ -197,11 +194,30 @@ app.post("/raiseanorder", async (req, res) => {
       comments,
       address,
       price,
+      status: "",
       orderId: uuid(),
     });
-    console.log("raise", raiseAnOrder);
     res.status(200).send(raiseAnOrder);
     generateEmail(raiseAnOrder);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send({ error: "Error While Saving" });
+  }
+});
+
+app.post("/updateorder", async (req, res) => {
+  try {
+    const { status, orderId } = req.body;
+    const raiseAnOrder = await Orders.findOneAndUpdate(
+      { orderId },
+      { status },
+      { new: true }
+    );
+    if (raiseAnOrder) {
+      res.status(200).send(raiseAnOrder);
+    } else {
+      res.status(500).send({ error: "Unable to update" });
+    }
   } catch (err) {
     console.log(err);
     res.status(500).send({ error: "Error While Saving" });
@@ -278,7 +294,6 @@ app.put("/editprices", async (req, res) => {
     if (pricesData) {
       res.status(200).send(pricesData);
     } else {
-      console.log("User not found");
     }
   } catch (err) {
     console.log(err);
@@ -318,7 +333,6 @@ app.delete("/deletePrice/:id", async (req, res) => {
 });
 
 app.post("/sendemail", (req, res) => {
-  console.log(req, res);
   const { userEmail } = req.body;
 
   let config = {
