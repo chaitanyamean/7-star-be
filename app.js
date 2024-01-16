@@ -9,6 +9,7 @@ const Affliate = require("./model/Affliate");
 const Flavours = require("./model/Flavours");
 const Quantity = require("./model/Quantity");
 const Prices = require("./model/Prices");
+const Questions = require("./model/Questions");
 const nodemailer = require("nodemailer");
 const Mailgen = require("mailgen");
 const appRoute = require("./routes/appRoutes");
@@ -237,6 +238,25 @@ app.post("/addflavours", async (req, res) => {
   }
 });
 
+app.post("/updateflavours", async (req, res) => {
+  try {
+    const { flavourId, image } = req.body;
+    console.log("FLAVOURSID", flavourId, image);
+    const flavoursDetails = await Flavours.findOneAndUpdate(
+      { flavourId },
+      { image },
+      { new: true }
+    );
+    if (flavoursDetails) {
+      res.status(200).send(flavoursDetails);
+    } else {
+      res.status(404).send({ data: "No Data" });
+    }
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 app.get("/getallflavours", async (req, res) => {
   try {
     const allFlavours = await Flavours.find({});
@@ -278,6 +298,30 @@ app.post("/addprices", async (req, res) => {
       price,
     });
     res.status(200).send(pricesData);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+app.post("/addquestions", async (req, res) => {
+  try {
+    const { problemName, code, type } = req.body;
+    const questionsData = await Questions.create({
+      questionId: uuid(),
+      problemName,
+      code,
+      type,
+    });
+    res.status(200).send(questionsData);
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+app.get("/getallquestions", async (req, res) => {
+  try {
+    const allQuestions = await Questions.find({});
+    res.status(200).json(allQuestions);
   } catch (err) {
     console.log(err);
   }

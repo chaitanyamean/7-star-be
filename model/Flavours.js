@@ -7,6 +7,9 @@ const flavourSchema = new mongoose.Schema({
   flavourId: {
     type: String,
   },
+  image: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("flavours", flavourSchema);
